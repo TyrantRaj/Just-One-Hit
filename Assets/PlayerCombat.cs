@@ -5,6 +5,8 @@ public class PlayerCombat : MonoBehaviour
 {
     Animator animator;
     PlayerInput playerInput;
+    [SerializeField] BoxCollider righthandCollider;
+    [SerializeField] BoxCollider lefthandCollider;
 
     public Quaternion lockedRotation;
 
@@ -65,4 +67,25 @@ public class PlayerCombat : MonoBehaviour
         animator.SetBool("IsDodging", false);
         playerInput.enabled = true;
     }
+
+    public void EnableRightHand()
+    {
+        righthandCollider.enabled = true;
+    }
+
+    public void DisableRightHand()
+    {
+        righthandCollider.enabled = false;
+    }
+
+    public void EnableLeftHand()
+    {
+        lefthandCollider.enabled = true;
+    }
+
+    public void DisableLeftHand()
+    {
+        lefthandCollider.enabled = false;
+    }
+
 }
