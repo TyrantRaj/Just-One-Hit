@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     bool isRunning;
 
     float dodgeTimer;
-    Vector3 dodgeDirection;
+    Vector3 dodgeDir;
 
     bool IsAttacking => animator.GetBool("IsAttacking");
     bool IsDodging => animator.GetBool("IsDodging");
@@ -31,7 +31,6 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (IsAttacking || IsDodging) return;
         moveInput = context.ReadValue<Vector2>();
     }
 
@@ -47,13 +46,13 @@ public class PlayerMovement : MonoBehaviour
             if (dodgeTimer <= 0f)
             {
                 dodgeTimer = dodgeDuration;
-                dodgeDirection = -transform.forward;
+                dodgeDir = -transform.forward;
             }
 
             dodgeTimer -= Time.deltaTime;
-            controller.Move(dodgeDirection * (dodgeDistance / dodgeDuration) * Time.deltaTime);
-            animator.SetFloat("MoveZ", 0);
+            controller.Move(dodgeDir * (dodgeDistance / dodgeDuration) * Time.deltaTime);
             transform.rotation = combat.lockedRotation;
+            animator.SetFloat("MoveZ", 0);
             return;
         }
 
@@ -61,28 +60,26 @@ public class PlayerMovement : MonoBehaviour
 
         if (IsAttacking)
         {
-            moveInput = Vector2.zero;
-            animator.SetFloat("MoveZ", 0);
             transform.rotation = combat.lockedRotation;
+            animator.SetFloat("MoveZ", 0);
             return;
         }
 
-        float animMoveZ = 0f;
         bool forward = moveInput.y > 0f;
+        float animZ = 0f;
 
         if (forward)
-            animMoveZ = isRunning ? 2f : 1f;
+            animZ = isRunning ? 2f : 1f;
         else if (moveInput.y < 0f)
-            animMoveZ = -1f;
-        else if(moveInput.x < 0f || moveInput.x >0f)
-            animMoveZ = 1f;
+            animZ = -1f;
+        else if (Mathf.Abs(moveInput.x) > 0f)
+            animZ = 1f;
 
-        animator.SetFloat("MoveZ", animMoveZ);
+        animator.SetFloat("MoveZ", animZ);
 
         float speed = (isRunning && forward) ? runSpeed : walkSpeed;
 
         Transform cam = Camera.main.transform;
-
         Vector3 camForward = cam.forward;
         Vector3 camRight = cam.right;
         camForward.y = 0;
@@ -93,8 +90,6 @@ public class PlayerMovement : MonoBehaviour
             camRight.normalized * moveInput.x;
 
         if (moveDir.sqrMagnitude > 0.01f)
-        {
             controller.Move(moveDir * speed * Time.deltaTime);
-        }
     }
 }
